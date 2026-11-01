@@ -52,7 +52,10 @@
   function show(p, fresh) {
     if (shown) return; shown = true;
     window.__UIV = fresh ? '' : p.v; // giao diện tự kiểm tra bản mới ở nền (xem cuối Index.html)
-    document.open(); document.write(p.html); document.close();
+    // Chỉ thay trang khi trang mồi đã tải xong (gọi document.open lúc đang tải thì Safari/iPhone bỏ qua → kẹt ở màn chờ)
+    var go = function () { document.open(); document.write(p.html); document.close(); };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { setTimeout(go, 0); });
+    else setTimeout(go, 0);
   }
   function getUi(ms) {
     return new Promise(function (ok, bad) {
